@@ -9,9 +9,16 @@ export class Form extends Component {
   };
 
   handleChangeName = event => {
-    const value = event.target.value;
+    const { name, value } = event.target;
     this.setState({
-      name: value,
+      [name]: value,
+    });
+  };
+
+  resetForm = () => {
+    this.setState({
+      name: '',
+      number: '',
     });
   };
 
@@ -24,13 +31,9 @@ export class Form extends Component {
 
   handleSubmit = event => {
     event.preventDefault();
-    const isSucceed = this.props.getValue({ ...this.state });
-    if (!isSucceed) return;
-
-    this.setState({
-      name: '',
-      number: '',
-    });
+    const isAddedContact = this.state;
+    this.props.getValue(isAddedContact);
+    this.resetForm();
   };
 
   render() {
