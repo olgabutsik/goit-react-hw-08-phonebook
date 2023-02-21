@@ -1,23 +1,36 @@
-import { Component } from 'react';
+import React from 'react';
+import { useState, useEffect } from 'react';
 import { Section } from './Section/Section';
 import { Form } from './Form/Form';
 import { ContactsList } from './ContactList/ContactList';
 import { Filter } from './Filter/Filter';
+import storage from './helpers/storage';
 import { nanoid } from 'nanoid';
 
-export class App extends Component {
-  state = {
-    contacts: [
-      { id: 'id-1', name: 'Rosie Simpson', number: '459-12-56' },
-      { id: 'id-2', name: 'Hermione Kline', number: '443-89-12' },
-      { id: 'id-3', name: 'Eden Clements', number: '645-17-79' },
-      { id: 'id-4', name: 'Annie Copeland', number: '227-91-26' },
-    ],
-    filter: '',
-  };
+const INITIALSTATE = [
+  { id: 'id-1', name: 'Rosie Simpson', number: '459-12-56' },
+  { id: 'id-2', name: 'Hermione Kline', number: '443-89-12' },
+  { id: 'id-3', name: 'Eden Clements', number: '645-17-79' },
+  { id: 'id-4', name: 'Annie Copeland', number: '227-91-26' },
+];
 
-  addName = ({ name, number }) => {
-    const isRepeated = this.state.contacts.find(
+export function App() {
+  const [contacts, setContacts] = useState(INITIALSTATE);
+  const [filter, setFilter] = useState('');
+
+  componentDidMount() {
+    const savedForm = storage.load('contacts') ?? INITIALSTATE;
+    this.setState({ contacts: savedForm });
+  }
+
+  componentDidUpdate(_, prevState) {
+    if (prevState.contacts !== contacts) {
+      storage.save('contacts', contacts);
+    }
+  }
+
+  const addName = ({ name, number }) => {
+    const isRepeated = contacts.find(
       contact => contact.name.toLowerCase() === name.toLowerCase()
     );
     if (isRepeated) {
@@ -26,53 +39,44 @@ export class App extends Component {
     }
 
     const contact = { id: nanoid(), name, number };
-    this.setState(prevState => ({
-      contacts: [...prevState.contacts, contact],
-    }));
+    setContacts(prevState => [...prevState, contact]);
     return true;
   };
 
-  deleteName = id => {
-    const newContacts = this.state.contacts.filter(item => item.id !== id);
-    this.setState({
-      contacts: [...newContacts],
-    });
+  const deleteName = id => {
+    const newContacts = contacts.filter(item => item.id !== id);
+    setContacts([...newContacts]);
   };
 
-  handleFilter = filter => {
-    this.setState({
-      filter,
-    });
+  const handleFilter = filter => {
+    setFilter(filter);
   };
 
-  render() {
-    const { contacts, filter } = this.state;
-    const selectedContacts = contacts.filter(contact =>
-      contact.name.toLowerCase().includes(filter.toLowerCase())
-    );
+  const selectedContacts = contacts.filter(contact =>
+    contact.name.toLowerCase().includes(filter.toLowerCase())
+  );
 
-    return (
-      <>
-        <Section title="Phonebook">
-          <Form getValue={this.addName}></Form>
-        </Section>
-        <Section title="Contacts">
-          {contacts.length ? (
-            <>
-              <Filter
-                title="Find contacts by name"
-                filterContacts={this.handleFilter}
-              />
-              <ContactsList
-                findContact={selectedContacts}
-                deleteContact={this.deleteName}
-              />
-            </>
-          ) : (
-            <p>Your phonebook is empty</p>
-          )}
-        </Section>
-      </>
-    );
-  }
+  return (
+    <>
+      <Section title="Phonebook">
+        <Form getValue={addName}></Form>
+      </Section>
+      <Section title="Contacts">
+        {contacts.length ? (
+          <>
+            <Filter
+              title="Find contacts by name"
+              filterContacts={handleFilter}
+            />
+            <ContactsList
+              findContact={selectedContacts}
+              deleteContact={deleteName}
+            />
+          </>
+        ) : (
+          <p>Your phonebook is empty</p>
+        )}
+      </Section>
+    </>
+  );
 }
