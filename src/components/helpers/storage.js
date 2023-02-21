@@ -9,6 +9,7 @@ const save = (key, value) => {
 };
 
 const load = key => {
+  
   try {
     const serializedState = localStorage.getItem(key);
 
