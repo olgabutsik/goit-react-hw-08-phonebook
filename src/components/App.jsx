@@ -18,16 +18,16 @@ export function App() {
   const [contacts, setContacts] = useState(INITIALSTATE);
   const [filter, setFilter] = useState('');
 
-  componentDidMount() {
-    const savedForm = storage.load('contacts') ?? INITIALSTATE;
-    this.setState({ contacts: savedForm });
-  }
-
-  componentDidUpdate(_, prevState) {
-    if (prevState.contacts !== contacts) {
-      storage.save('contacts', contacts);
+  useEffect(() => {
+    const data = storage.load('contacts');
+    if (data) {
+      setContacts(data);
     }
-  }
+  }, []);
+
+  useEffect(() => {
+    storage.save('contacts', contacts);
+  }, [contacts]);
 
   const addName = ({ name, number }) => {
     const isRepeated = contacts.find(
