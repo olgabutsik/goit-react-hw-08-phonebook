@@ -15,15 +15,10 @@ const INITIALSTATE = [
 ];
 
 export function App() {
-  const [contacts, setContacts] = useState(INITIALSTATE);
+  const [contacts, setContacts] = useState(
+    () => storage.load('contacts') ?? []
+  );
   const [filter, setFilter] = useState('');
-
-  useEffect(() => {
-    const data = storage.load('contacts');
-    if (data) {
-      setContacts(data);
-    }
-  }, []);
 
   useEffect(() => {
     storage.save('contacts', contacts);
