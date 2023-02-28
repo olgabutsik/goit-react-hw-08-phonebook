@@ -1,30 +1,36 @@
-import React from 'react';
 import { useState } from 'react';
 import { FormStyled, FormInput, FormLabel, FormButton } from './Form.styled';
-import PropTypes from 'prop-types';
+import { addContact } from 'redux/contacts/contactSlice';
+import { useSelector, useDispatch } from 'react-redux';
 
-export const Form = ({ getValue }) => {
+export const Form = () => {
   const [name, setName] = useState('');
   const [number, setNumber] = useState('');
+  const contacts = useSelector(state => state.contacts.contacts);
+  const dispatch = useDispatch();
 
-  const handleChangeName = event => {
-    setName(event.target.value);
-  };
+  const handleChange = event => {
+    const { name, value } = event.target;
 
-  const resetForm = () => {
-    setName('');
-    setNumber('');
-  };
-
-  const handleChangeNumber = event => {
-    setNumber(event.target.value);
+    if (name === 'name') setName(value);
+    if (name === 'number') setNumber(value);
   };
 
   const handleSubmit = event => {
     event.preventDefault();
-    const isAddedContact = { name, number };
-    getValue(isAddedContact);
-    resetForm();
+
+    const isRepeated = contacts.find(
+      contact => contact.name.toLowerCase() === name.toLowerCase()
+    );
+
+    if (isRepeated) {
+      alert(`${isRepeated.name} is already in contacts`);
+      return;
+    }
+
+    dispatch(addContact({ name, number }));
+    setName('');
+    setNumber('');
   };
 
   return (
@@ -38,7 +44,7 @@ export const Form = ({ getValue }) => {
           title="Name may contain only letters, apostrophe, dash and spaces. For example Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan"
           required
           value={name}
-          onChange={handleChangeName}
+          onChange={handleChange}
         />
       </FormLabel>
       <FormLabel>
@@ -50,7 +56,7 @@ export const Form = ({ getValue }) => {
           title="Phone number must be digits and can contain spaces, dashes, parentheses and can start with +"
           required
           value={number}
-          onChange={handleChangeNumber}
+          onChange={handleChange}
         />
       </FormLabel>
       <FormButton type="submit">Add contact</FormButton>
@@ -58,6 +64,4 @@ export const Form = ({ getValue }) => {
   );
 };
 
-Form.propTypes = {
-  getValue: PropTypes.func.isRequired,
-};
+export default Form;

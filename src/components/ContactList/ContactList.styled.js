@@ -8,10 +8,10 @@ export const ContactsListItem = styled.li`
 `;
 
 export const ContactsListButton = styled.button`
-  width: 70px;
+  width: 80px;
   margin-left: 10px;
   background-color: transparent;
   border: none;
   border-radius: 5px;
-  border: 1px solid blue;
+  outline: 1px solid blue;
 `;

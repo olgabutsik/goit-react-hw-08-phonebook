@@ -1,59 +1,29 @@
-import React from 'react';
-import { Section } from './Section/Section';
-import { Form } from './Form/Form';
-import { ContactsList } from './ContactList/ContactList';
-import { Filter } from './Filter/Filter';
-import { nanoid } from 'nanoid';
-import { useDispatch, useSelector } from 'react-redux/es/exports';
-import { deleteContact, setNewContact } from '../redux/contactSlice';
-import { setFilter } from 'redux/filterSlice';
+import Section from './Section/Section';
+import Form from './Form/Form';
+import ContactsList from './ContactList/ContactList';
+import Filter from './Filter/Filter';
+import { useSelector } from 'react-redux';
+import { selectContacts } from 'redux/contacts/selector';
+import { selectFilter } from 'redux/filter/selector';
 
-export function App() {
-  const dispatch = useDispatch();
-  const { contacts } = useSelector(state => state.contacts);
-  const { filter } = useSelector(state => state.filter);
-
-  const addName = ({ name, number }) => {
-    const isRepeated = contacts.find(
-      contact => contact.name.toLowerCase() === name.toLowerCase()
-    );
-    if (isRepeated) {
-      alert(`${isRepeated.name} is already in contacts`);
-      return;
-    }
-    const contact = { id: nanoid(), name, number };
-    dispatch(setNewContact(contact));
-  };
-
-  const deleteName = id => {
-    dispatch(deleteContact(id));
-  };
+export const App = () => {
+  const contacts = useSelector(selectContacts);
+  const filter = useSelector(selectFilter);
 
   const selectedContacts = contacts.filter(contact =>
     contact.name.toLowerCase().includes(filter.toLowerCase())
   );
 
-  const handleFilter = e => {
-    dispatch(setFilter(e.target.value));
-  };
-
   return (
     <>
       <Section title="Phonebook">
-        <Form getValue={addName}></Form>
+        <Form></Form>
       </Section>
       <Section title="Contacts">
         {contacts.length ? (
           <>
-            <Filter
-              title="Find contacts by name"
-              handleFilter={handleFilter}
-              filterValue={filter}
-            />
-            <ContactsList
-              findContact={selectedContacts}
-              deleteContact={deleteName}
-            />
+            <Filter title="Find contacts by name" />
+            <ContactsList currentContacts={selectedContacts} />
           </>
         ) : (
           <p>Your phonebook is empty</p>
@@ -61,4 +31,4 @@ export function App() {
       </Section>
     </>
   );
-}
+};
