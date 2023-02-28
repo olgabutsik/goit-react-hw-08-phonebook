@@ -1,28 +1,17 @@
 import React from 'react';
-import { useState, useEffect } from 'react';
 import { Section } from './Section/Section';
 import { Form } from './Form/Form';
 import { ContactsList } from './ContactList/ContactList';
 import { Filter } from './Filter/Filter';
-import storage from './helpers/storage';
 import { nanoid } from 'nanoid';
-
-const INITIALSTATE = [
-  { id: 'id-1', name: 'Rosie Simpson', number: '459-12-56' },
-  { id: 'id-2', name: 'Hermione Kline', number: '443-89-12' },
-  { id: 'id-3', name: 'Eden Clements', number: '645-17-79' },
-  { id: 'id-4', name: 'Annie Copeland', number: '227-91-26' },
-];
+import { useDispatch, useSelector } from 'react-redux/es/exports';
+import { deleteContact, setNewContact } from '../redux/contactSlice';
+import { setFilter } from 'redux/filterSlice';
 
 export function App() {
-  const [contacts, setContacts] = useState(
-    () => storage.load('contacts') ?? []
-  );
-  const [filter, setFilter] = useState('');
-
-  useEffect(() => {
-    storage.save('contacts', contacts);
-  }, [contacts]);
+  const dispatch = useDispatch();
+  const { contacts } = useSelector(state => state.contacts);
+  const { filter } = useSelector(state => state.filter);
 
   const addName = ({ name, number }) => {
     const isRepeated = contacts.find(
@@ -30,26 +19,23 @@ export function App() {
     );
     if (isRepeated) {
       alert(`${isRepeated.name} is already in contacts`);
-      return false;
+      return;
     }
-
     const contact = { id: nanoid(), name, number };
-    setContacts(prevState => [...prevState, contact]);
-    return true;
+    dispatch(setNewContact(contact));
   };
 
   const deleteName = id => {
-    const newContacts = contacts.filter(item => item.id !== id);
-    setContacts([...newContacts]);
-  };
-
-  const handleFilter = filter => {
-    setFilter(filter);
+    dispatch(deleteContact(id));
   };
 
   const selectedContacts = contacts.filter(contact =>
     contact.name.toLowerCase().includes(filter.toLowerCase())
   );
+
+  const handleFilter = e => {
+    dispatch(setFilter(e.target.value));
+  };
 
   return (
     <>
@@ -61,7 +47,8 @@ export function App() {
           <>
             <Filter
               title="Find contacts by name"
-              filterContacts={handleFilter}
+              handleFilter={handleFilter}
+              filterValue={filter}
             />
             <ContactsList
               findContact={selectedContacts}
