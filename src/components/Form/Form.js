@@ -1,9 +1,13 @@
 import { useState } from 'react';
-import { FormStyled, FormInput, FormLabel, FormButton } from './Form.styled';
-import { addContact } from 'redux/operations';
 import { useSelector, useDispatch } from 'react-redux';
-import { selectContacts } from 'redux/contacts/selector';
 import { nanoid } from '@reduxjs/toolkit';
+import { Notify } from 'notiflix';
+
+import { FormLabel } from '@chakra-ui/form-control';
+import { Button } from '@chakra-ui/button';
+import { Input } from '@chakra-ui/input';
+import { addContact } from 'redux/contacts/operations';
+import { selectContacts } from 'redux/contacts/selector';
 
 export const Form = () => {
   const [name, setName] = useState('');
@@ -26,7 +30,7 @@ export const Form = () => {
     );
 
     if (isRepeated) {
-      alert(`${isRepeated.name} is already in contacts`);
+      Notify.failure(`${isRepeated.name} is already in contacts!`);
       return;
     }
 
@@ -36,10 +40,10 @@ export const Form = () => {
   };
 
   return (
-    <FormStyled onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} style={{ width: '400px' }}>
       <FormLabel>
         Name
-        <FormInput
+        <Input
           type="text"
           name="name"
           pattern="^[a-zA-Zа-яА-Я]+(([' -][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$"
@@ -51,7 +55,7 @@ export const Form = () => {
       </FormLabel>
       <FormLabel>
         Number
-        <FormInput
+        <Input
           type="tel"
           name="number"
           pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
@@ -61,8 +65,10 @@ export const Form = () => {
           onChange={handleChange}
         />
       </FormLabel>
-      <FormButton type="submit">Add contact</FormButton>
-    </FormStyled>
+      <Button mt={2} type="submit">
+        Add contact
+      </Button>
+    </form>
   );
 };
 
